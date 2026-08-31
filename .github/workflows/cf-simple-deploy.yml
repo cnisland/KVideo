@@ -1,0 +1,31 @@
+name: Deploy KVideo to CF
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+      - run: pnpm install --no-frozen-lockfile
+      - name: Build
+        run: pnpm pages:build
+        env:
+          ADMIN_PASSWORD: cnisland2026kvideo
+          NEXT_PUBLIC_SITE_NAME: YYcn KVideo
+          NODE_ENV: production
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy .vercel/output/static --project-name=kvideo
+          packageManager: pnpm
+          wranglerVersion: "3.114.17"
