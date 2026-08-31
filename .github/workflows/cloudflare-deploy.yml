@@ -52,6 +52,16 @@ jobs:
           NEXT_PUBLIC_SITE_NAME: ${{ secrets.NEXT_PUBLIC_SITE_NAME }}
           NODE_ENV: production
 
+      - name: Check build output
+        run: |
+          echo "=== .vercel/output contents ==="
+          ls -la .vercel/output/ 2>/dev/null || echo ".vercel/output not found"
+          ls -la .vercel/output/static/ 2>/dev/null | head -20 || echo "static dir not found"
+          echo "=== _worker.js exists? ==="
+          find .vercel/output -name "_worker.js" 2>/dev/null
+          echo "=== wrangler.toml ==="
+          cat wrangler.toml 2>/dev/null
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
@@ -59,4 +69,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy .vercel/output/static --project-name=kvideo
           packageManager: pnpm
-          wranglerVersion: "3"
+          wranglerVersion: "3.114.17"
